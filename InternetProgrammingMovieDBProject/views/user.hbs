@@ -1,0 +1,272 @@
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <style>
+        html,
+        body {
+            background-image: "http://image.tmdb.org/t/p/w154/"+ {
+                    {
+                    data.backdrop_path
+                }
+            }
+            ;
+            !important;
+        }
+
+        a.btn {
+            border-radius: .25rem;
+            border: 1px solid transparent;
+            padding: .5rem 1rem;
+            color: #fff;
+        }
+
+        a.btn:hover {
+            border-radius: .25rem;
+        }
+
+        button:active {
+            background-color: #3e8e41;
+            box-shadow: 0 5px #666;
+            transform: translateY(4px);
+        }
+
+        #thing {
+            float: left;
+            height: 400px;
+        }
+    </style>
+</head>
+
+<body class="bg-secondary">
+    <!--TODO button to add review then bar for movie title give results click movie check if in database if in database
+TODO give string field to write review if not in database add to database also home button-->
+
+    <header class="d-flex justify-content-between bg-dark text-light p-2">
+        <span class="w-75">
+            <div class="input-group mb-3 w-50">
+                <div class="input-group-prepend">
+                         
+            {{!--<div>--}}
+            {{!--    <img src="img/accountdefault.png"width="64" height = "64" class="rounded-circle m-2"/>--}}
+            {{!--</div>--}}
+            
+                    <a href="/" id="searching" class="nav-link btn btn-outline-secondary" aria-haspopup="true" aria-expanded="false">Home</a>
+                </div>
+            </div>
+                <h1 id="displayUsername"></h1>
+            <div>
+            </div>
+            
+            <div id="bitchreview"></div>
+            
+        </span>
+        <span class = "d-flex flex-column justify-content-center">
+            <div>
+
+                <!--<a href="/users?username={{username}}"><img src="img/accountdefault.png" width="64" height = "64" class="rounded-circle m-2"></a>-->
+                <img id="homePageAvatar" src="img/accountdefault.png"width="64" height = "64" class="rounded-circle m-2"/>
+            </div>
+            <div>
+                <a id="signIn" class="btn btn-info" href = "/login" role = "button">Sign In</a>
+                <a id="signOut" class="btn btn-info" role = "button">Sign Out</a>
+            </div>
+            
+        </span>
+    </header>
+
+
+
+    <div class="d-flex justify-content-center">
+        <div id="main" class="w-75 h-100 bg-light rounded-bottom bg-light rounded-bottom p-3" style="height: 100%;">
+
+        </div>
+
+
+
+        <hr class="m-3">
+    </div>
+
+    <footer class="d-flex justify-content-center">
+        <div class="footer">
+            <h3>&copy; Movie List 2019</h3>
+        </div>
+    </footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script>
+    var currentReview = 0;
+        //display username of who is logged in
+        $('#displayUsername').html("{{logged}}");
+
+        $(document).ready(function() {
+
+            $.ajax({
+                type: "POST",
+                url: "/users/getReviews",
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    pageOwner: "{{logged}}"
+                }),
+                success: function(result, status) {
+                    console.log(result);
+                    console.log(result.success);
+                    if (result.response) {
+                        console.log(result);
+                    }
+                    else {
+                        console.log(result.message);
+                    }
+
+                    console.log("result is this: ", result);
+                    console.log("please work ", result.retrievedReviews[0].userid);
+
+                    for (let i = 0; i < result.retrievedReviews.length; i++) {
+                        $("#main").append(`
+                                    <div id="review${i}" class='d-flex mb-3 justify-content-between'>
+                                        <span>
+                                            <span class="font-weight-bold">Movie: </span><span>${result.retrievedReviews[i].movietitle}</span><br>
+                                            <span class="font-weight-bold">Review: </span><span>${result.retrievedReviews[i].review}</span><br>
+                                            <span class="font-weight-bold">Score: </span><span>${result.retrievedReviews[i].score}</span><br>
+                                            <span class="font-weight-bold">Date: </span><span>${result.retrievedReviews[i].date.substring(0, 10)}</span><br>
+                                        </span>
+                                        <span>
+                                            <button type='button' id="ebutton${i}" class='btn btn-info' value="${result.retrievedReviews[i].movieid}" >Edit Review</button>
+                                            <button type='button' id="${"dbutton" + i}" class="btn btn-info" value="${result.retrievedReviews[i].movieid}" >Delete Review</button>
+                                        </span>
+                                        
+                                    </div>
+                                    <hr>`);
+                        $(`#ebutton${i}`).click(function() { editReview(`${result.retrievedReviews[i].reviewid}`) });
+                        $(`#dbutton${i}`).click(function() { deleteReview(`${result.retrievedReviews[i].reviewid}`) });
+                    }
+                }
+            });
+            
+            function deleteReview(id) {
+                
+                
+                $.ajax({
+                    url: "/users/deleteReview",
+                    method: "POST",
+                    data: {
+                        reviewid: id
+                    }
+                    ,
+                    success: function(result, status) {
+                        console.log(result);
+
+                        if (result.successful) {
+                        }
+                        else {
+                            $("#errorMessage").html(result.message).css("color", 'red');
+                        }
+                    }
+                }); //ajax
+                location.reload();
+            }
+
+            function editReview(id)
+            {
+                $("#bitchreview").append(`
+                    <h6>Review</h6>
+                    <textarea id='review' class='form-control replace' rows='3' maxlength='500' ></textarea>
+                    <h6 class='replace'> Rating 1-10</h6>
+                    <input id='score' type='number' min='1' max='10'>
+                    <div id='result' class='text-center replace'></div>
+                    <button id='newSubmit' class='m-1 text-center btn btn-info class'>Submit Review</button>
+                    `);
+                    currentReview = id;
+            }
+
+
+            if ("{{loggedIn}}") {
+                $("#signIn").hide();
+                $(".btns").show();
+            }
+            else {
+                $("#signOut").hide();
+                $(".btns").hide();
+            }
+
+            $("#signOut").on("click", logout);
+
+            function logout() {
+                $.ajax({
+                    url: "/login/signOut",
+                    method: "GET",
+                    success: function(result, status) {
+                        console.log(result);
+                        
+                        if (result.successful) {
+                            window.location.href = "/";
+                        }
+                        else {
+                            $("#errorMessage").html(result.message).css("color", 'red');
+                        }
+                    }
+                }); //ajax
+            }
+
+            function isValid() {
+                var result = true;
+                
+                if ($("#review").val() === "") {
+                    result = false;
+                    $("#result").html("Review required");
+                    $("#result").css("color", "red");
+                }
+                else if ($("#score").val() === "") {
+                    result = false;
+                    $("#result").html("Score required");
+                    $("#result").css("color", "red");
+                }
+                else if ($("#score").val() <= 0 || $("#score").val() >= 11) {
+                    result = false;
+                    $("#result").html("Score must be between 1 and 10");
+                    $("#result").css("color", "red");
+                }
+                else {
+                    $("#result").html("");
+                    $("#result").css("color", "green");
+                }
+                return result;
+            }
+
+            $(document).on("click", "#newSubmit", function() {
+                console.log("review:", $("#review").val());
+                console.log("score:", $("#score").val());
+                if (isValid()) {
+                    console.log("it was valid, bitch");
+                    $.ajax({
+                        type: "POST",
+                        url: "/users/updateReview",
+                        dataType: "json",
+                        contentType: "application/json",
+                        data: JSON.stringify({
+                            review: $("#review").val(),
+                            reviewid: currentReview,
+                            score: $("#score").val()
+                        }),
+                        success: function(data, status) {
+                            console.log(data);
+                            console.log(data.success);
+                            if (data.response) {
+                                console.log(data);
+                                location.reload();
+                            }
+                            else {
+                                console.log(data.message);
+                            }
+                        }
+                    });
+                }
+            });
+
+        });
+    </script>
+</body>

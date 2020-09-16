@@ -1,0 +1,254 @@
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <style>
+        html,body {
+            background-image: "http://image.tmdb.org/t/p/w154/"+{{data.backdrop_path}};!important;
+        }
+        a.btn {border-radius: .25rem; border: 1px solid transparent; padding: .5rem 1rem; color: #fff; }
+        a.btn:hover { border-radius: .25rem; }
+        button:active {
+            background-color: #3e8e41;
+            box-shadow: 0 5px #666;
+            transform: translateY(4px);
+        }
+        #thing {
+            float: left;
+            height: 400px;
+        }
+
+    </style>
+</head>
+
+<body class="bg-secondary">
+
+<header class="d-flex justify-content-between bg-dark text-light p-2">
+        <span class = "w-75">
+            <h1 id="title"></h1>
+            <div class="input-group mb-3 w-50">
+                        <div>
+                            <a href="/" id="searching" class="nav-link btn btn-outline-secondary" aria-haspopup="true" aria-expanded="false">Home</a>
+                        </div>
+            </div>
+        </span>
+    <span class = "d-flex flex-column justify-content-center">
+            <div>
+                <img src="img/accountdefault.png"width="64" height = "64" class="rounded-circle m-2"/>
+            </div>
+            <div>
+                <a id="signIn" class="btn btn-info" href = "/login" role = "button">Sign In</a>
+                <a id="signOut" class="btn btn-info" href = "/logout" role = "button">Sign Out</a>
+            </div>
+        </span>
+</header>
+
+<div class="d-flex justify-content-center">
+    <div id="main" class="w-50 bg-light rounded-bottom p-4" id="body">
+        <div class="d-flex flex-row">
+            <span id="imgbox"></span>
+            <span id="textbox" class="pl-3 pr-3"></span>
+        </div>
+        <div id="buttonarea" class = "p-1">
+            <button type="button" id="avgbutton" class="btn btn-info">Average Rating</button>
+            <button type="button" id="minbutton" class="btn btn-info">Lowest Rating</button>
+            <button type="button" id="maxbutton" class="btn btn-info">Highest Rating</button>
+        </div>
+    </div>
+</div>
+
+<hr class="m-3">
+
+<footer class="d-flex justify-content-center">
+    <h3>&copy; Movie List 2019</h3>
+</footer>
+<script>
+    function isValid(){
+        var result = true;
+        if($("#review").val() === ""){
+            result = false;
+            $("#result").html("Review required");
+            $("#result").css("color","red");
+        }else if ($("#score").val() === ""){
+            result = false;
+            $("#result").html("Score required");
+            $("#result").css("color","red");
+        }else if($("#score").val() <= 0 || $("#score").val() >= 11){
+            result=false;
+            $("#result").html("Score must be between 1 and 10");
+            $("#result").css("color","red");
+        }else{
+            $("#result").html("");
+            $("#result").css("color","green");
+        }
+        return result;
+    }
+    $(document).ready(function () {
+        let id = {{data.id}};
+        var hold;
+        let loged = "{{login}}";
+        console.log({{login}});
+        console.log({{reviews.length}});
+        let overview = "{{data.overview}}";
+        let poster ="http://image.tmdb.org/t/p/w300/" + "{{data.poster_path}}";
+        let backdrop ="http://image.tmdb.org/t/p/original/"+"{{data.backdrop_path}}";
+        //THIS POPULATES THE #MAIN WITH THE POSTER AND SYNOPSIS
+        //$("#main").append("<div id='post'><p id='thing'><img src='"+poster+"' style='height: 450px'></p>  <h5 style='height: 450px'>"+overview+"</h5> </div>");
+        $("#imgbox").html(`<img src='${poster}' style='height: 450px'>`);
+        $("#textbox").html(`<h5>${overview}</h5>`);
+        $("#title").html("{{data.title}}");
+        if (loged){
+            $("#signIn").hide();
+        }else{
+            $("#signOut").hide();
+        }
+        if (id && loged){
+            $("#main").append("<div id='reviews'><button id='newReview' class='m-1 btn btn-info'>Add Review</button></div>")
+        }
+        $("#main").append("<hr>");
+        console.log($(document).contents());
+        {{#if reviews}}
+        {{#each reviews}}
+            {{#if picurl}}
+                $("#main").append(`
+                <div class='d-flex mb-3' style='height: 30px'>
+                    <span>
+                        <img src="{{picurl}}" width="32" height = "32" class="rounded-circle m-2"/>{{fullname}}
+                    </span>
+                    <span class='ml-auto pt-2 pr-2'>{{score}}/10
+                    </span>
+                </div>`);
+            {{else}}
+                $("#main").append(`
+                <div class='d-flex mb-3' style='height: 30px'>
+                    <span>
+                        <img src="img/accountdefault.png" width="32" height = "32" class="rounded-circle m-2"/>{{fullname}}
+                    </span>
+                    <span class='ml-auto pt-2 pr-2'>{{score}}/10
+                    </span>
+                </div><br>`);
+                
+            {{/if}}
+          $("#main").append("&emsp;&quot;{{review}}&quot;<br><br><hr>");
+        {{/each}}
+        {{else}}
+           $("#main").append("<div class='text-center'>No Reviews</div>");
+           $("#avgbutton").hide();
+           $("#minbutton").hide();
+           $("#maxbutton").hide();
+        {{/if}}
+        $("#newReview").on("click",function () {
+            $("#newReview").hide();
+            $("#reviews").append("<h6>Review</h6>");
+            $("#reviews").append("<textarea class='form-control replace' id='review' rows='3' maxlength='500' ></textarea>");
+            $("#reviews").append("<h6 class='replace'> Rating 1-10</h6><input type='number' id='score' min='1' max='10'>");
+            $("#reviews").append("<div id='result' class='text-center replace'></div>");
+            $("#reviews").append("<button id='newSubmit' class='m-1 text-center btn btn-info class'>Submit Review</button>");
+        });
+        
+        $(document).on("click","#newSubmit",function () {
+            console.log($("#review").val());
+            console.log($("#score").val());
+            if (isValid()){
+                $.ajax({
+                    type: "POST",
+                    url: "/movie/review",
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        review: $("#review").val(),
+                        movieid: id,
+                        score: $("#score").val()
+                    }),
+                    success: function (data, status) {
+                        console.log(data);
+                        console.log(data.success);
+                        if (data.response) {
+                            console.log(data);
+                            location.reload();
+                        } else {
+                            console.log(data.message);
+                        }
+                    }
+                });
+            }
+        });
+        
+        $("#avgbutton").click(function () {
+            console.log("Pressed avg button");
+                $.ajax({
+                    type: "POST",
+                    url: "/movie",
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        movieid: id,
+                        stat: "avg"
+                    }),
+                    success: function (data, status) {
+                        console.log("Success function");
+                        console.log("data",data);
+                        $("#avgbutton").html(data.stat);
+                    }
+                });
+        });
+        
+        $("#minbutton").click(function () {
+            console.log("Pressed min button");
+                $.ajax({
+                    type: "POST",
+                    url: "/movie",
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        movieid: id,
+                        stat: "min"
+                    }),
+                    success: function (data, status) {
+                        console.log("Success function");
+                        console.log("data",data);
+                        $("#minbutton").html(data.stat);
+                    }
+                });
+        });
+        
+        $("#maxbutton").click(function () {
+            console.log("Pressed max button");
+                $.ajax({
+                    type: "POST",
+                    url: "/movie",
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        movieid: id,
+                        stat: "max"
+                    }),
+                    success: function (data, status) {
+                        console.log("Success function");
+                        console.log("data",data);
+                        $("#maxbutton").html(data.stat);
+                    }
+                });
+        });
+        
+        $("#signOut").on("click", logout);
+
+        function logout() {
+            $.ajax({
+                url: "/login/signOut",
+                method: "GET",
+                success: function(result, status) {
+                    console.log(result);
+
+                    if (result.successful) {
+                        window.location.href = "/";
+                    }
+                    else {
+                        $("#errorMessage").html(result.message).css("color", 'red');
+                    }
+                }
+            }); //ajax
+        }
+    });
+</script>
